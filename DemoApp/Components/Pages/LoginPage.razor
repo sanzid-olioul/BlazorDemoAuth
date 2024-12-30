@@ -1,0 +1,48 @@
+﻿@page "/login"
+@using DemoApp.Infrastructure;
+
+<div class="d-flex flex-row justify-center mt-8">
+    <MudPaper Class="justify-center" MinWidth="400px" Width="35%" Elevation="0">
+        <MudText Align="Align.Center" Color="Color.Primary" Class="my-4" Typo="Typo.h3">
+            Demo App
+        </MudText>
+        <EditForm Model="@model" OnValidSubmit="@LoginUser">
+            <MudCard Class="mt-3">
+                <MudCardHeader Class="my-3">
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h4" Align="Align.Center">Login</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudTextField Label="User Name" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Person" @bind-Value="@model.Email" />
+                    <MudTextField Label="Password" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Lock" @bind-Value="@model.Password" InputType="InputType.Password" Class="my-3" />
+                    <MudSwitch Label="Remember Me" Color="Color.Primary" UncheckedColor="Color.Default" @bind-Value="@model.RememberMe" />
+                </MudCardContent>
+                <MudCardActions Class="d-flex justify-end">
+                    <MudButton Class="mr-3" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">
+                        <MudText>Login</MudText>
+                    </MudButton>
+                </MudCardActions>
+                <MudCardContent Class="d-flex justify-center">
+                    <MudLink Href="/forgot-password">Forgot Password?</MudLink>
+                </MudCardContent>
+            </MudCard>
+        </EditForm>
+    </MudPaper>
+</div>
+@code {
+    public LoginModel model { get; set; } = new();
+
+    public async Task LoginUser()
+    {
+        if(model.Email == AppSettings.Settings.AdminEmail && model.Password == AppSettings.Settings.AdminPassword)
+        {
+            var session = new SessionModel() {
+                    Sesssionid = new Guid(),
+                    Token = Encryption.Encrypt(model.Email + model.Password, AppSettings.Settings.Key,AppSettings.Settings.Iv)
+                };
+            await _protectedLocalStore.SetAsync("demo-session", session);
+            _navigator.NavigateTo("/");
+        }
+    }
+}

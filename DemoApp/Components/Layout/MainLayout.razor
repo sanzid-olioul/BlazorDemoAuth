@@ -1,0 +1,69 @@
+﻿@inherits LayoutComponentBase
+@using DemoApp.Infrastructure
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        @if (_isAuthenticated == true)
+        {
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        }
+        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+        <MudSpacer />
+        @if (_isAuthenticated == true)
+        {
+            <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="LogOutUser" Color="Color.Inherit" Edge="Edge.End" />
+        }
+    </MudAppBar>
+    @if (_isAuthenticated == true)
+    {
+        <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+            <NavMenu />
+        </MudDrawer>
+    }
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    bool _drawerOpen = true;
+    bool _isAuthenticated = false;
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var session = await _protectedLocalStore.GetAsync<SessionModel>("demo-session");
+        if (session.Success == false)
+        {
+            if (!_navigator.Uri.Contains("/login"))
+            {
+                _navigator.NavigateTo("/login", true);
+            }
+        }
+        else{
+            var auth = session.Value;
+            if(Encryption.Decrypt(auth?.Token, AppSettings.Settings.Key,AppSettings.Settings.Iv) == $"{AppSettings.Settings.AdminEmail}{AppSettings.Settings.AdminPassword}")
+            {
+                _isAuthenticated = true;
+                StateHasChanged();
+            }
+            else{
+                await _protectedLocalStore.DeleteAsync("demo-session");
+            }
+        }
+    }
+
+    public async Task LogOutUser()
+    {
+        await _protectedLocalStore.DeleteAsync("demo-session");
+        _navigator.NavigateTo("/login", true);
+    }
+}

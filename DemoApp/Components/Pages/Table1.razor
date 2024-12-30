@@ -1,0 +1,111 @@
+﻿@page "/table1"
+
+
+<MudTable Items="@Elements" Dense="@dense" Hover="@hover" ReadOnly="@ronly" CanCancelEdit="@canCancelEdit" Filter="new Func<Element,bool>(FilterFunc)"
+          @bind-SelectedItem="selectedItem1" SortLabel="Sort By"  IsEditRowSwitchingBlocked="@blockSwitch" ApplyButtonPosition="@applyButtonPosition" EditButtonPosition="@editButtonPosition" EditTrigger="@editTrigger">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Periodic Elements</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <ColGroup>
+        @if (applyButtonPosition.DisplayApplyButtonAtStart() || (editButtonPosition.DisplayEditButtonAtStart() && editTrigger == TableEditTrigger.EditButton))
+        {
+            <col style="width:50px;" />
+        }
+        <col style="width:50px;" />
+        <col style="width:80px;" />
+        <col style="width:50%;" />
+        <col />
+        <col />
+        @if (applyButtonPosition.DisplayApplyButtonAtEnd() || (editButtonPosition.DisplayEditButtonAtEnd() && editTrigger == TableEditTrigger.EditButton))
+        {
+            <col style="width:50px;" />
+        }
+    </ColGroup>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortBy="new Func<Element, object>(x=>x.Number)">Nr</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Element, object>(x=>x.Sign)">Sign</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<Element, object>(x=>x.Name)">Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Element, object>(x=>x.Position)">Position</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Element, object>(x=>x.Molar)">Mass</MudTableSortLabel></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Nr">@context.Number</MudTd>
+        <MudTd DataLabel="Sign">@context.Sign</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Position">@context.Position</MudTd>
+        <MudTd DataLabel="Molar mass">@context.Molar</MudTd>
+    </RowTemplate>
+    <RowEditingTemplate>
+        <MudTd DataLabel="Nr">@context.Number</MudTd>
+        <MudTd DataLabel="Sign">
+            <MudTextField @bind-Value="context.Sign" Required />
+        </MudTd>
+        <MudTd DataLabel="Name">
+            <MudTextField @bind-Value="context.Name" Required />
+        </MudTd>
+        <MudTd DataLabel="Position">
+            <MudNumericField @bind-Value="context.Position" Required Min="1" />
+        </MudTd>
+        <MudTd DataLabel="Molar mass">
+            <MudTextField @bind-Value="context.Molar" Required />
+        </MudTd>
+    </RowEditingTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+    <EditButtonContent Context="button">
+        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
+    </EditButtonContent>
+</MudTable>
+
+@code {
+    public class Element
+    {
+        public int Number { get; set; }
+        public string Sign { get; set; }
+        public string Name { get; set; }
+        public int Position { get; set; }
+        public double Molar { get; set; }
+    }
+
+    private List<Element> Elements = new List<Element>
+    {
+        new Element { Number = 1, Sign = "H", Name = "Hydrogen", Position = 1, Molar = 1.008 },
+        new Element { Number = 2, Sign = "He", Name = "Helium", Position = 18, Molar = 4.0026 },
+        new Element { Number = 3, Sign = "Li", Name = "Lithium", Position = 2, Molar = 6.94 },
+        new Element { Number = 4, Sign = "Be", Name = "Beryllium", Position = 2, Molar = 9.0122 },
+        new Element { Number = 5, Sign = "B", Name = "Boron", Position = 13, Molar = 10.81 },
+        new Element { Number = 6, Sign = "C", Name = "Carbon", Position = 14, Molar = 12.011 },
+        new Element { Number = 7, Sign = "N", Name = "Nitrogen", Position = 15, Molar = 14.007 },
+        new Element { Number = 8, Sign = "O", Name = "Oxygen", Position = 16, Molar = 15.999 },
+        new Element { Number = 9, Sign = "F", Name = "Fluorine", Position = 17, Molar = 18.998 },
+        new Element { Number = 10, Sign = "Ne", Name = "Neon", Position = 18, Molar = 20.180 }
+    };
+
+    private bool dense = false;
+    private bool hover = true;
+    private bool ronly = false;
+    private bool canCancelEdit = true;
+    private bool blockSwitch = false;
+    private TableApplyButtonPosition applyButtonPosition = TableApplyButtonPosition.End;
+    private TableEditButtonPosition editButtonPosition = TableEditButtonPosition.End;
+    private TableEditTrigger editTrigger = TableEditTrigger.EditButton;
+    private string searchString = string.Empty;
+    private Element selectedItem1;
+
+    private bool FilterFunc(Element element)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        return element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+            || element.Sign.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+            || element.Number.ToString().Contains(searchString);
+    }
+
+    private void BackupItem(Element element) { /* Backup logic */ }
+    private void ResetItemToOriginalValues(Element element) { /* Reset logic */ }
+    private void ItemHasBeenCommitted(Element element) { /* Commit logic */ }
+}
+

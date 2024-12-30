@@ -35,6 +35,9 @@
 
     public async Task LoginUser()
     {
+        _snackbar.Clear();
+        _snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+
         if(model.Email == AppSettings.Settings.AdminEmail && model.Password == AppSettings.Settings.AdminPassword)
         {
             var session = new SessionModel() {
@@ -42,7 +45,12 @@
                     Token = Encryption.Encrypt(model.Email + model.Password, AppSettings.Settings.Key,AppSettings.Settings.Iv)
                 };
             await _protectedLocalStore.SetAsync("demo-session", session);
+            _snackbar.Add("Successfully logged in", Severity.Success);
             _navigator.NavigateTo("/");
+        }
+        else{
+            
+            _snackbar.Add("wrong credentials!", Severity.Error);
         }
     }
 }

@@ -52,8 +52,14 @@
             var auth = session.Value;
             if(Encryption.Decrypt(auth?.Token, AppSettings.Settings.Key,AppSettings.Settings.Iv) == $"{AppSettings.Settings.AdminEmail}{AppSettings.Settings.AdminPassword}")
             {
-                _isAuthenticated = true;
-                StateHasChanged();
+                if (_navigator.Uri.Contains("/login"))
+                {
+                    _navigator.NavigateTo("/", true);
+                }
+                else{
+                    _isAuthenticated = true;
+                    StateHasChanged();
+                }
             }
             else{
                 await _protectedLocalStore.DeleteAsync("demo-session");

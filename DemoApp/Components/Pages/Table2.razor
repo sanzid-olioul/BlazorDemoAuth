@@ -1,5 +1,5 @@
 ﻿@page "/table2"
-
+@attribute [Authorize]
 
 <MudTable Items="@Elements" Dense="@dense" Hover="@hover" ReadOnly="@ronly" CanCancelEdit="@canCancelEdit" Filter="new Func<Element,bool>(FilterFunc)"
           @bind-SelectedItem="selectedItem1" SortLabel="Sort By" IsEditRowSwitchingBlocked="@blockSwitch" ApplyButtonPosition="@applyButtonPosition" EditButtonPosition="@editButtonPosition" EditTrigger="@editTrigger">

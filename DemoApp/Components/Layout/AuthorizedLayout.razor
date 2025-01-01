@@ -1,0 +1,39 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using DemoApp.Infrastructure;
+@inject IAuthorizationService authorizationService
+@inject CustomAuthStateProvider _authStateProvider
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.Logout" OnClick="Logout" Color="Color.Inherit" Edge="Edge.End" />
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent>
+        @ChildContent
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    bool _drawerOpen = true;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    public async Task Logout()
+    {
+        await _protectedLocalStore.DeleteAsync("demo-session");
+        _snackbar.Add("Successfully logged in", Severity.Success);
+        _authStateProvider.MarkUserAsLoggedOut();
+        _navigator.NavigateTo("/login", forceLoad: true);
+    }
+}

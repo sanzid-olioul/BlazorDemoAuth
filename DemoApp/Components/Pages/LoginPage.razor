@@ -1,5 +1,6 @@
 ﻿@page "/login"
 @using DemoApp.Infrastructure;
+@inject CustomAuthStateProvider _authStateProvider
 
 <div class="d-flex flex-row justify-center mt-8">
     <MudPaper Class="justify-center" MinWidth="400px" Width="35%" Elevation="0">
@@ -45,11 +46,11 @@
                     Token = Encryption.Encrypt(model.Email + model.Password, AppSettings.Settings.Key,AppSettings.Settings.Iv)
                 };
             await _protectedLocalStore.SetAsync("demo-session", session);
+            _authStateProvider.MarkUserAsAuthenticated(session);
             _snackbar.Add("Successfully logged in", Severity.Success);
-            _navigator.NavigateTo("/");
+            _navigator.NavigateTo("/", forceLoad: true);
         }
         else{
-            
             _snackbar.Add("wrong credentials!", Severity.Error);
         }
     }
